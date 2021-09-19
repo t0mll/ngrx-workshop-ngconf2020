@@ -16,7 +16,7 @@ export interface State {
   collection: BookModel[];
   selectedBookId: string | null;
 }
-
+ 
 export const initialState: State = {
   collection: [],
   selectedBookId: null,
