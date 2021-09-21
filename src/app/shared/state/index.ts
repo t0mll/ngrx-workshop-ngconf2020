@@ -7,7 +7,7 @@ export interface State {
 }
 
 export const reducers: ActionReducerMap<State> = {
-    books: fromBooks.reducer;
+    books: fromBooks.reducer
 };
 
 export const metaReducers: MetaReducer<State>[] = [];
