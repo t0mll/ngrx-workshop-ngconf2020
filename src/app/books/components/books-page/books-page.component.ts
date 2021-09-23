@@ -1,11 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 import {
   BookModel,
   calculateBooksGrossEarnings,
   BookRequiredProps,
 } from 'src/app/shared/models';
 import { BooksService } from 'src/app/shared/services';
+import {
+  selectActiveBook,
+  selectAllbooks,
+  selectBooksEarningsTotal,
+  State,
+} from 'src/app/shared/state';
 import { BooksPageActions, BooksApiActions } from '../../actions';
 
 @Component({
@@ -14,11 +21,15 @@ import { BooksPageActions, BooksApiActions } from '../../actions';
   styleUrls: ['./books-page.component.css'],
 })
 export class BooksPageComponent implements OnInit {
-  books: BookModel[] = [];
-  currentBook: BookModel | null = null;
-  total: number = 0;
+  books$: Observable<BookModel[]>;
+  currentBook$: Observable<BookModel | undefined>;
+  total$: Observable<number>;
 
-  constructor(private booksService: BooksService, private store: Store) {}
+  constructor(private booksService: BooksService, private store: Store<State>) {
+    this.total$ = store.select(selectBooksEarningsTotal);
+    this.currentBook$ = store.select(selectActiveBook);
+    this.books$ = store.select(selectAllbooks);
+  }
 
   ngOnInit() {
     this.store.dispatch(BooksPageActions.enter());
@@ -30,18 +41,11 @@ export class BooksPageComponent implements OnInit {
   getBooks() {
     this.booksService.all().subscribe((books) => {
       this.store.dispatch(BooksApiActions.booksLoaded({ books: books }));
-      this.books = books;
-      this.updateTotals(books);
     });
-  }
-
-  updateTotals(books: BookModel[]) {
-    this.total = calculateBooksGrossEarnings(books);
   }
 
   onSelect(book: BookModel) {
     this.store.dispatch(BooksPageActions.selectBook({ bookId: book.id }));
-    this.currentBook = book;
   }
 
   onCancel() {
@@ -50,7 +54,6 @@ export class BooksPageComponent implements OnInit {
 
   removeSelectedBook() {
     this.store.dispatch(BooksPageActions.clearSelectedBook());
-    this.currentBook = null;
   }
 
   onSave(book: BookRequiredProps | BookModel) {
