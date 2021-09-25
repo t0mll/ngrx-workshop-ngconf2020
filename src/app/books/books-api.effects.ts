@@ -8,14 +8,14 @@ import { BooksPageActions, BooksApiActions } from './actions';
 export class BooksApiEffects {
   constructor(private booksService: BooksService, private actions$: Actions) {}
 
-  loadBooks$ = createEffect(() =>
-    this.actions$.pipe(
+  loadBooks$ = createEffect(() => {
+    return this.actions$.pipe(
       ofType(BooksPageActions.enter),
-      mergeMap(() =>
-        this.booksService
+      mergeMap(() => {
+        return this.booksService
           .all()
-          .pipe(map((books) => BooksApiActions.booksLoaded({ books })))
-      )
-    )
-  );
+          .pipe(map((books) => BooksApiActions.booksLoaded({ books })));
+      })
+    );
+  });
 }
