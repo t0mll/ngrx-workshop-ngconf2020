@@ -43,13 +43,12 @@ export class BooksApiEffects {
     );
   });
 
-
   updateBook$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(BooksPageActions.updateBook),
-      concatMap((action) => {
+      concatMap(({ bookId, changes }) => {
         return this.booksService
-          .update(action.bookId, action.changes)
+          .update(bookId, changes)
           .pipe(map((book) => BooksApiActions.bookCreated({ book })));
       })
     );

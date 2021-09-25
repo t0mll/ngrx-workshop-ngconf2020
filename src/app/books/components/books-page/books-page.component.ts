@@ -6,7 +6,6 @@ import {
   calculateBooksGrossEarnings,
   BookRequiredProps,
 } from 'src/app/shared/models';
-import { BooksService } from 'src/app/shared/services';
 import {
   selectActiveBook,
   selectAllbooks,
@@ -25,7 +24,7 @@ export class BooksPageComponent implements OnInit {
   currentBook$: Observable<BookModel | undefined>;
   total$: Observable<number>;
 
-  constructor(private booksService: BooksService, private store: Store<State>) {
+  constructor(private store: Store<State>) {
     this.total$ = store.select(selectBooksEarningsTotal);
     this.currentBook$ = store.select(selectActiveBook);
     this.books$ = store.select(selectAllbooks);
