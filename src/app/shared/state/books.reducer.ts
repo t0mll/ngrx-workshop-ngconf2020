@@ -1,26 +1,17 @@
 import { createReducer, on, Action, createSelector } from '@ngrx/store';
 import { BookModel, calculateBooksGrossEarnings } from 'src/app/shared/models';
 import { BooksPageActions, BooksApiActions } from 'src/app/books/actions';
+import { createEntityAdapter, EntityState } from '@ngrx/entity';
 
-const createBook = (books: BookModel[], book: BookModel) => [...books, book];
-
-const updateBook = (books: BookModel[], changes: BookModel) =>
-  books.map((book) => {
-    return book.id === changes.id ? Object.assign({}, book, changes) : book;
-  });
-
-const deleteBook = (books: BookModel[], bookId: string) =>
-  books.filter((book) => bookId !== book.id);
-
-export interface State {
-  collection: BookModel[];
+export interface State extends EntityState<BookModel> {
   selectedBookId: string | null;
 }
 
-export const initialState: State = {
-  collection: [],
+const adapter = createEntityAdapter<BookModel>();
+
+export const initialState: State = adapter.getInitialState({
   selectedBookId: null,
-};
+});
 
 export const booksReducer = createReducer(
   initialState,
@@ -37,28 +28,25 @@ export const booksReducer = createReducer(
     };
   }),
   on(BooksApiActions.booksLoaded, (state, action) => {
-    return {
-      ...state,
-      collection: action.books,
-    };
+    return adapter.addMany(action.books, state);
   }),
   on(BooksApiActions.bookCreated, (state, action) => {
-    return {
+    return adapter.addOne(action.book, {
       ...state,
-      collection: createBook(state.collection, action.book),
-    };
+      selectedBookId: null,
+    });
   }),
   on(BooksApiActions.bookUpdated, (state, action) => {
-    return {
-      ...state,
-      collection: updateBook(state.collection, action.book),
-    };
+    return adapter.updateOne(
+      { id: action.book.id, changes: action.book },
+      {
+        ...state,
+        selectedBookId: null,
+      }
+    );
   }),
   on(BooksApiActions.bookDeleted, (state, action) => {
-    return {
-      ...state,
-      collection: deleteBook(state.collection, action.bookId),
-    };
+    return adapter.removeOne(action.bookId, state);
   })
 );
 
@@ -66,14 +54,14 @@ export function reducer(state: State | undefined, action: Action) {
   return booksReducer(state, action);
 }
 
-export const selectAll = (state: State) => state.collection;
+export const { selectAll, selectEntities } = adapter.getSelectors();
 export const selectSelectedBookId = (state: State) => state.selectedBookId;
 
 export const selectActiveBook = createSelector(
-  selectAll,
+  selectEntities,
   selectSelectedBookId,
-  (books, selectedBookdId) => {
-    return books.find((book) => book.id === selectedBookdId);
+  (entities, selectedBookdId) => {
+    return selectedBookdId ? entities[selectedBookdId] : null;
   }
 );
 
