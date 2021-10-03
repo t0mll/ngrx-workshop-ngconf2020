@@ -3,7 +3,6 @@ import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import {
   BookModel,
-  calculateBooksGrossEarnings,
   BookRequiredProps,
 } from 'src/app/shared/models';
 import {
@@ -12,7 +11,7 @@ import {
   selectBooksEarningsTotal,
   State,
 } from 'src/app/shared/state';
-import { BooksPageActions, BooksApiActions } from '../../actions';
+import { BooksPageActions } from '../../actions';
 
 @Component({
   selector: 'app-books',
@@ -21,7 +20,7 @@ import { BooksPageActions, BooksApiActions } from '../../actions';
 })
 export class BooksPageComponent implements OnInit {
   books$: Observable<BookModel[]>;
-  currentBook$: Observable<BookModel | undefined>;
+  currentBook$: Observable<BookModel | null| undefined>;
   total$: Observable<number>;
 
   constructor(private store: Store<State>) {

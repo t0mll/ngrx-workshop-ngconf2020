@@ -3,10 +3,12 @@ import * as fromAuth from './auth.reducer';
 import * as fromBooks from './books.reducer';
 
 export interface State {
+  auth: fromAuth.State;
   books: fromBooks.State;
 }
 
 export const reducers: ActionReducerMap<State> = {
+  auth: fromAuth.reducer,
   books: fromBooks.reducer,
 };
 
